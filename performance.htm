@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Pinning in IE</title>
+<link rel="shortcut icon" href="../js/pin/favicon.ico" />   
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<script src='../js/pin/jquery.js'></script>
+<script>
+
+function benchmark(update_sequentially){
+	// Build an array of items to insert
+	var a = [];
+	window.external.msSiteModeClearJumpList();
+	window.external.msSiteModeCreateJumplist("Testing jumplist");
+
+	var ms = (new Date).getTime();
+	for( var i=0;i<20;i++){
+		window.external.msSiteModeAddJumpListItem("Title:"+i,'#'+i, '');
+		if(update_sequentially){
+			window.external.msSiteModeShowJumpList();
+		}
+	}
+	if(!update_sequentially){
+		window.external.msSiteModeShowJumpList();
+	}
+	return ((new Date).getTime() - ms);
+}
+
+</script>
+<link href="../js/pin/style.css" rel="stylesheet" />
+</head>
+
+<body>
+<h1><img src="../js/pin/favicon.ico" width="28"/> Jumplist performance benchmark</h1>
+
+<p>Test inserts 20 items into the jumplist using each method. Implicity vs Explicit commits to the jumplist.</p>
+<p>Results are in milliseconds. </p>
+
+<table>
+	<thead><tr><th>Saving the list sequentially (Implicitly)</th><th>Saving at the end 
+		(Explicitly)</th></tr></thead>
+	<tbody></tbody>
+</table>
+
+<button onclick="$('<tr><td>'+benchmark(true)+'</td><td>'+benchmark(false)+'</td></tr>').appendTo('table tbody');">run test</button>
+</body>
+
+</html>

@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Pinning in IE</title>
+<script src="../js/pin/pin.js" ></script>
+<link href="../js/pin/style.css" rel="stylesheet" />
+<script>
+if( pin.pinned ){
+	// Trigger popup, user-initiated event
+	// Popup, will work 
+	pin.button('bug.ico','Open Facebook',function(i){
+		window.open("http://facebook.com", 'Popup', 'width=100,height=100');
+	});
+
+	// Popup, will work 
+	pin.button('tick.ico','Open local page',function(i){
+		window.open("./", 'PopupPlay', 'width=100,height=100,resize=1');
+	});
+}
+function addRedirect(){
+	pin.button('http://facebook.com/favicon.ico','Hide Me',function(i){
+		window.open("./redirect.php?location="+encodeURIComponent("http://facebook.com"), 'PopupPlay', 'width=100,height=100,resize=1');
+	});
+}
+</script>
+<style>
+table button{
+	border:none;
+	background:none;
+	padding:0;
+}
+pre span{
+	background-color:#DDD;
+}
+.alert{
+	font-size:1.2em;
+	border:2px solid black;
+	text-align:center;
+	background-color:#990000;
+	color:white;
+}
+</style>
+</head>
+
+<body>
+<h1>SiteMode buttons and UI Events</h1>
+<script>
+if(!pin.pinned){
+	document.write('<p class="alert">Please pin this page</p>');
+}
+</script>
+
+<p>The table below describes an inconsistancy agains Popup blocking in thumbnailbuttons 
+compared to two other security models. You may click on the buttons to try the 
+tests for your self.</p>
+<table>
+	<tr>
+		<td></td>
+		<td>
+		Pop Up to Current Domain
+		</td>
+		<td>Pop Up to Another Domain
+		</td>
+	</tr>
+	<tr>
+		<td>Via a direct click </td>
+		<td>
+			<button onclick="window.open(window.location.href, 'popup', 'width=200,height=200');" title='onclick="window.open(window.location.href);"' class="yes"><img src="../js/pin/tick.ico" width="24px"/></button>
+		</td>
+		<td>
+			<button onclick="window.open('http://bing.com', 'popup', 'width=200,height=200');" title='onclick="window.open(\"http://bing.com\");"' class="yes"><img src="../js/pin/tick.ico" width="24px"/></button>
+		</td>
+	</tr>
+	<tr>
+		<td>Via setTimeout</td>
+		<td>
+			<button onclick="setTimeout(function(){window.open('./', 'popup', 'width=200,height=200');}, 100);" title='onclick="setTimeout(function(){window.open(window.location.href);}, 100);"' class="banned"><img src="../js/pin/banned.ico" width="24px"/></button> (Permitted 
+			in siteMode... <img src="../js/pin/bug.ico" width="24px"/> ?)
+		</td>
+		<td>
+			<button onclick="setTimeout(function(){window.open('http://bing.com', 'popups', 'width=200,height=200');}, 100);" title='onclick="setTimeout(function(){window.open(\"http://bing.com\");}, 100);"' class="banned"><img src="../js/pin/banned.ico" width="24px"/></button>
+		</td>
+	</tr>
+	<tr>
+		<td>Via thumbnail buttons <br>(these buttons are inactive please see the 
+		thumbnail buttons)</td>
+		<td>
+			<img src="../js/pin/tick.ico" width="24px"/> </td>
+		<td>
+			<img src="../js/pin/bug.ico" width="24px"/></td>
+	</tr>
+</table>
+
+<h2><img src="../js/pin/bug.ico" width="24px"/> Popups are blocked to external domain when event occurs from a thumbnailbutton</h2>
+<p>So this wont work...</p>
+<pre>
+	// Trigger popup, user-initiated event
+	// Popup, will work 
+	pin.button('http://facebook.com/favicon.ico','Toggle Play',function(i){
+		<span>window.open("http://facebook.com", 'Popup', 'width=100,height=100');</span>
+	});
+</pre>
+<p>But this will work...</p>
+<pre>
+	/**
+	 * Trigger popup, user-initiated event
+	 * Popup, will work 
+	 */
+	pin.button('http://facebook.com/favicon.ico','Hide Me',function(i){
+		<span>window.open("./redirect.php?location="+encodeURIComponent("http://facebook.com"), 'PopupPlay', 'width=100,height=100,resize=1');</span>
+	});
+</pre>
+<button onclick="addRedirect()">Click here to add <img src="http://facebook.com/favicon.ico" /> to the thumbnail buttons</button>
+<h3>The code for the redirect.php is..</h3>
+<pre>
+&lt;?php
+header(&#39;Location: &#39;.$_GET[&#39;location&#39;]);
+exit;
+?&gt;</pre>
+</body>
+
+</html>

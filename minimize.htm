@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<script>
+(function(){
+var state = 0;
+window.addEventListener('blur', function(){
+	// Has the browser window minimized?
+	// console.log(window.outerWidth < window.innerWidth);
+	if( ( window.outerWidth < window.innerWidth ) // IE9 
+		|| (window.screenLeft||window.screenX) === -32000 ) // IE8- + FF
+		{
+		var evt = document.createEvent("Events");
+		evt.initEvent('minimize',null,null);
+		window.dispatchEvent(evt);
+		state=1;
+	}
+	
+},false);
+
+window.addEventListener('focus', function(){
+	if(state){
+		var evt = document.createEvent("Events");
+		evt.initEvent('maximize',null,null);
+		window.dispatchEvent(evt);
+		state=0;
+	}
+},false);
+
+})();
+window.addEventListener('minimize', function(){
+	console.log("Min");
+	var h1 = document.getElementsByTagName('h1')[0];
+	h1.innerHTML = "Minified";
+	h1.style.fontSize = "200px";
+});
+window.addEventListener('maximize', function(){
+	console.log("Max");
+	document.getElementsByTagName('h1')[0].innerHTML = "Maxified";
+});
+		
+	</script>
+</head>
+<body>
+	<h1 style="font-size:150px;">Min/Max</h1>
+</body>
+</html>

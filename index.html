@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>pin.js with IE9</title>
+<script src="pin.js"></script>  
+<script>
+sitemode.tasks([ 
+	{title: "Tasks", url : window.location.href, icon : "favicon.ico" }, 
+	{title: "Jumplist", url : window.location.href, icon : "favicon.ico" } 
+]);
+sitemode.name("Development with IE9 pin.js");
+sitemode.tooltip("Development with IE9 sitemode");
+sitemode.starturl("./");
+</script>
+<link rel="shortcut icon" href="favicon.ico" />   
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<script src='jquery.js'></script>
+<script>
+$(document).ready(function(){
+	// 
+	$("<button>Try It</button>").click(function(){
+		var s=$(this).prev("pre").text();
+		if(!s.match(/^alert/)&&!sitemode.pinned){
+			alert("Please pin this site first");
+			return;
+		}
+		eval(s);
+	}).insertAfter('body pre.demo');
+
+	// Build the navigation
+	var s='';
+	$("h2,h3").each(function(){
+		s += "<li class='"+this.tagName.toLowerCase()+"'><a href='#"+this.innerHTML.replace(/[^a-z]/gi,'')+"'>"+this.innerHTML.replace(/ ((\([^)]+\))|\-\s.*)/,function(m){return "<span class='descr'>"+m+"</span>";}).replace(/^[a-z\.]+(\(.*?\))?/i,function(m){return "<span class='code'>"+m+"</span>";})+"</a></li>";
+		$(this).attr("id",this.innerHTML.replace(/[^a-z]/gi,''));
+	})
+	$("nav").append('<ul>'+s+'</ul>');
+	
+});
+
+
+</script>
+<link href="style.css" rel="stylesheet" />
+</head>
+
+<body>
+<h1><img src="favicon.ico" width="28"/> pin.js with IE9</h1>
+<p>Site pinning in IE presents a way to interoperate with the Windows 7 desktop 
+and make a website feel more like a native app. This library adds missng 
+wraps some of the sitemode methods in window.external and adds..</p>
+<ul><li>Querying the Jumplist - by saving a local copy of what is in the 
+	jumplist, and managing it from many locations</li>
+	<li>Allowing pages to have separate buttons - by modifying existing buttons 
+	(because once set we&#39;re unable to create new ones)</li>
+</ul> 
+
+<nav></nav>
+
+<h2>Get Started</h2>
+<pre>
+&lt;script src=&quot;pin.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+	pin.jumplist.title(&quot;Recently visited&quot;);
+	pin.jumplist.add("Test Link " + (new Date), &quot;#" + (new Date));
+&lt;/script&gt;
+</pre>
+
+<h4>...which is an alternative to...</h4>
+<pre>
+&lt;script&gt;
+	if( ( &quot;external&quot; in window ) &amp;&amp; ( &quot;msIsSiteMode&quot; in window.external ) &amp;&amp; window.external.msIsSiteMode() ){
+		window.external.msSiteModeCreateJumpList(&quot;My List Label&quot;);
+		window.external.msSiteModeAddJumpListItem("Test Link " + (new Date), &quot;#" + (new Date));
+		window.external.msSiteModeShowJumpList(); 
+	}
+&lt;/script&gt;
+</pre>
+<h4>Which both give you something like this...</h4>
+<img src="jumplist.png" />
+
+
+<h2>Before pinning - set some custom pin parameters</h2>
+<h3>pin.name( <em>string</em> ) - Define the name of the application</h3>
+<pre class="demo">
+pin.name("Development with IE9 pin.js");
+</pre>
+<h3>pin.starturl( <em>url</em> ) - Define the URL which will be pinned</h3>
+<pre class="demo">
+pin.starturl("./?start");
+</pre>
+
+<h3>pin.tasks( [ { name:<em>string</em>, url:<em>url</em>, icon:<em>url</em> }, ... ] ) - Replace all the task list items with this list</h3>
+<pre class="demo">
+pin.tasks([ 
+	{title: "Tasks", url : window.location.href, icon : "favicon.ico" }, 
+	{title: "Jumplist", url : window.location.href, icon : "favicon.ico" } 
+]);
+</pre>
+
+
+
+<h2>pin.jumplist</h2>
+<p>First of all we initiate a new list. We typically only want to when a pinned 
+application is loaded, so wrap it in the condition <code>if( pin.first ){...}</code></p>
+<h3>pin.jumplist.title( [title] ) - Get/Set the title of the jumplist</h3>
+<pre class="demo">
+pin.jumplist.title( "My Jumplist" );
+alert(pin.jumplist.title());
+</pre>
+<h3>pin.jumplist.add(<em> title</em>,<em> url [</em>,<em> icon][, pos] </em>) - Add item to the list</h3>
+<p><em>position </em>is optional, e.g. setting the 
+<em>position</em> to 0 the new item will be appended to the top of the list. 
+Without it items are placed at the end of the list.</p>
+<pre class="demo">
+pin.jumplist.add("Test Link " + (new Date), &quot;#" + (new Date));
+</pre>
+
+<h3>pin.jumplist.add( <em>object[] [, pos] </em>) - Add many items to the list at once</h3>
+<p><em>position </em> is optional</p>
+<p><em>object[]</em> - is an array of objects containing the attributes <em>title</em>, <em>url</em>, <em>icon</em>(optional). E.g...</p>
+<pre class="demo">
+pin.jumplist.add([
+	{title : "Jumplists", url : "#jumplist"},
+	{title : "Tasks", url : "#tasks"},
+	{title : "Buttons", url : "#buttons"},
+]);
+</pre>
+
+
+<h3>pin.jumplist.items() - Return an array of items in the jumplist</h3>
+
+<pre class="demo">
+var s = '',
+    a = pin.jumplist.items();
+
+for( var i in a ){
+	s += [a[i].title, a[i].url, (a[i].icon||'Image not defined')].join(', ') + '&lt;br /&gt;';
+}
+document.getElementById('list').innerHTML = s;
+</pre>
+<div id="list"></div>
+
+<h3>pin.jumplist.remove(<em> pos [, len] </em>) - Delete an items using <em>position</em></h3>
+<p>This the second parameter specifies an optional length to delete more than 
+one item.</p>
+<p>E.g delete the first item</p>
+<pre class="demo">
+pin.jumplist.remove(0);
+</pre>
+
+
+<h3>pin.jumplist.clear() - Clear all items from the jumplist</h3>
+<pre class="demo">
+pin.jumplist.clear();
+</pre>
+
+<h3>pin.jumplist.replace(<em> pos [, len], object[] </em>) - Replace items in the list</h3>
+<p>The second parameter specifies an optional length to delete more than one 
+item before new items are inserted into their place. The number 
+of items do not have to match.</p>
+<p>E.g. replace first item from the list, pos=0</p>
+<pre class="demo">
+pin.jumplist.replace(0,{title:"Replaced at "+ (new Date), url: '#'+(new Date)})
+</pre>
+
+<h2>pin.button (Thumbnail Preview Buttons)</h2>
+<h3>pin.button.add(<em> icon [, label], callback </em>) - Add buttons.</h3>
+<pre class="demo">
+btnId = pin.button.add("tick.ico", "Tick", function(){alert("Hello");});
+</pre>
+<h3>pin.button.update(<em> btnId [, icon [, label]] [, callback] </em>) - Update buttons </h3>
+<pre class="demo">
+pin.button.update(btnId, "banned.ico", "Banned", function(){alert("Goodbye");});
+</pre>
+<h3>pin.button.hide(<em> btnId</em> ) - Hide button</h3>
+<pre class="demo">
+pin.button.hide( btnId );
+</pre>
+
+<h4>Now you try...</h4>
+<pre class="demo">
+if( pin.pinned ){
+	// Add a toggle button
+	(function(){
+		var toggle = true;
+		pin.button.add('/winconnect/toobify/images/toob_play.ico','Toggle Play', function(btnid){
+			// Change style
+			toggle = !toggle;
+			var s = (toggle?"play":"pause");
+			pin.button.update(btnid,'/winconnect/toobify/images/toob_'+s+'.ico','Toggle '+s);
+		});
+	})();
+
+	// Add a self-disappearing button
+	pin.button.add('/winconnect/toobify/images/toob_next.ico','Hide Me',function(btnid){
+		pin.button.hide(btnid);
+	});
+}
+</pre>
+
+<p>If the button is linked to a visual property in the page then you might like bring the page into focus, maximised and infront of other windows if it not already.</p>
+
+<pre class="demo">
+pin.button.add("tick.ico","Bring to forefront", function(){
+	<strong>window.blur();
+	window.focus();</strong>
+});
+</pre>
+
+<h2>pin.overlay (Overlay's)</h2>
+<h3>pin.overlay( icon, descr [, ttl]) - Add an overlay</h3>
+<p>E.g. add an icon overlay for 3 seconds</p>
+<pre class="demo">
+pin.overlay("tick.ico",&quot;Tick&quot;, 3000);
+</pre>
+
+<p>E.g. switch periodically between two overlays</p>
+<pre class="demo">
+pin.overlay("bug.ico",&quot;Bug&quot;);
+pin.overlay("banned.ico",&quot;Banned&quot;);
+</pre>
+
+<h3>pin.overlay( icon, descr, 0) - Remove an overlay</h3>
+<pre class="demo">
+pin.overlay("tick.ico",&quot;Tick&quot;, 0);
+</pre>
+
+<p>Add a bug and then remove after 3 seconds</p>
+<pre class="demo">
+var o = pin.overlay("bug.ico",&quot;Bug&quot;);
+setTimeout(function(){
+   pin.overlay(o, 0);
+},3000)
+</pre>
+
+<h3>pin.overlay(0) - Remove all</h3>
+<p>Remove all current overlays</p>
+<pre class="demo">
+pin.overlay(0);
+</pre>
+
+
+
+<h2>pin.activate (Flash the taskbar icon)</h2>
+<h3>pin.activate()</h3>
+<p>When testing this please ALT+tab to remove focus from your browser window</p>
+<pre class="demo">setTimeout(function(){
+	pin.activate();
+}, 3000);</pre>
+
+<h2>pin.master (prioritise actions to one of possibly many open tabs)</h2>
+<h3>pin.master() - Is this the master tab?</h3>
+<p>Use this as a condition to run code which would of otherwise been executed as 
+many times as the user has tabs and windows open to the site. Very useful for updating shared 
+features i.e. like the jumplist.</p>
+<pre class="demo">
+alert( pin.master() ? &quot;master window" : &quot;slave window" );
+</pre>
+<p>Master is a title that can be held by only one of the pinned window or 
+tabs. Using this property will help reduce unnessecary duplicate actions. e.g. each page 
+calling a server script to populate the Jumplist.</p>
+
+<h3>pin.master(true) - Make this window the master.</h3>
+<pre class="demo">
+alert( pin.master(true) ? &quot;master window" : &quot;slave window" );
+</pre>
+
+<h3>pin.master(false) - Abdicate, remove Master status.</h3>
+<p>If another window doesn't take over as master before calling pin.master() in this window then the window will be reassigned as master.</p>
+<pre class="demo">
+alert( pin.master(false) ? &quot;master window" : &quot;slave window" );
+</pre>
+
+<h3>pin.masterReign - Define the period of master's reign in the absence of a call to 
+pin.master().</h3>
+<pre class="demo">
+// 120 seconds
+pin.masterRegin = 120e3;
+</pre>
+
+<h2>Properties</h2>
+<h3>pin.pinable - Is the site pinable?</h3>
+<pre class="demo">
+alert( pin.pinable ? "Yes this browser supports pinning" : "This browser does not support pinning" );
+</pre>
+
+<h3>pin.pinned - Is the browser in sitemode?</h3>
+<pre class="demo">
+alert( pin.pinned ? "Site is Pinned" : "Please pin this site");
+</pre>
+
+
+<h3>pin.first - Is this the page loaded from pinned button.</h3>
+<pre class="demo">
+alert( pin.first ? "First" : "Nope");
+</pre>
+
+<h3>pin.pinnedUrl - Returns the absolute path of the page which was pinned.</h3>
+<pre class="demo">
+alert( pin.pinnedUrl );
+</pre>
+
+<h2>Pitfalls with the library and site pinning</h2>
+
+<ol>
+<li><a href="popup.htm">Non-UI Event</a> If a button triggers a window.open it is caught in IE9 security</li>
+</ol>
+
+<h2>Resources</h2>
+
+<ol>
+<li><a href="http://msdn.microsoft.com/en-us/ie/dd797411.aspx">
+http://msdn.microsoft.com/en-us/ie/dd797411.aspx</a></li>
+</ol>
+
+</body>
+
+</html>
